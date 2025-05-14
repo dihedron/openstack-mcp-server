@@ -16,12 +16,6 @@ import (
 
 // --- MCP Resource Structures (simplified for demonstration) ---
 
-// VMInfo represents a simplified view of a Virtual Machine for listing.
-type VMInfo struct {
-	ID     string `json:"id"`
-	Name   string `json:"name"`
-	Status string `json:"status"`
-}
 
 // NetworkInfo represents a simplified view of a Network for listing.
 type NetworkInfo struct {
@@ -61,25 +55,6 @@ func main() {
 		mcp.WithDescription("Lists all Virtual Machines."),
 		mcp.WithNoInput(), // No input parameters for listing
 		mcp.WithToolExecutor(func(ctx context.Context, inputs mcp.ToolInputs, _ mcp.ToolOutputter) (map[string]interface{}, error) {
-			log.Println("Executing ListVMs tool")
-			var allServers []VMInfo
-
-			pager := servers.List(clients.ComputeClient, servers.ListOpts{})
-			err := pager.EachPage(context.TODO(), func(_ context.Context, page pagination.Page) (bool, error) {
-				serverList, err := servers.ExtractServers(page)
-				if err != nil {
-					return false, fmt.Errorf("failed to extract servers: %v", err)
-				}
-				for _, srv := range serverList {
-					allServers = append(allServers, VMInfo{ID: srv.ID, Name: srv.Name, Status: srv.Status})
-				}
-				return true, nil
-			})
-			if err != nil {
-				return nil, fmt.Errorf("error listing VMs: %v", err)
-			}
-			return map[string]interface{}{"vms": allServers}, nil
-		}),
 	)
 
 	getVMTool := mcp.NewTool(
